@@ -312,8 +312,22 @@ async def optimize(request: OptimizationRequest):
             classical_results = greedy_solve(sections, request.course_ids, request.num_results)
         schedules.extend(classical_results)
 
-    schedules.sort(key=lambda s: -s.total_score)
-    schedules = schedules[:request.num_results]
+    if request.solver == "both" and schedules:
+        # Guarantee mix: top results from each solver
+        qaoa_scheds = sorted([s for s in schedules if s.solver == "qaoa"], key=lambda s: -s.total_score)
+        classical_scheds = sorted([s for s in schedules if s.solver == "classical"], key=lambda s: -s.total_score)
+        half = max(1, request.num_results // 2)
+        schedules = classical_scheds[:half] + qaoa_scheds[:half]
+        # Fill remaining slots from either
+        remaining = request.num_results - len(schedules)
+        if remaining > 0:
+            used = {id(s) for s in schedules}
+            extras = sorted([s for s in classical_scheds + qaoa_scheds if id(s) not in used], key=lambda s: -s.total_score)
+            schedules.extend(extras[:remaining])
+        schedules.sort(key=lambda s: -s.total_score)
+    else:
+        schedules.sort(key=lambda s: -s.total_score)
+        schedules = schedules[:request.num_results]
 
     schedule_outputs = []
     for sched in schedules:
