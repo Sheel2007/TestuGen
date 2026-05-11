@@ -81,19 +81,17 @@ export function WeeklyCalendar({ schedule }: Props) {
                       }}
                     >
                       <div className="text-xs font-semibold text-white truncate">{section.course_id} - {section.section_id.split('-').pop()}</div>
-                      {height > 30 && section.instructors.length > 0 && (
+                      <div className="text-[10px] text-gray-300 truncate">
+                        {meeting.building} {meeting.room}
+                      </div>
+                      {height > 35 && section.instructors.length > 0 && (
                         <div className="text-[10px] text-gray-400 truncate">
                           {section.instructors[0]}
                         </div>
                       )}
-                      {height > 45 && (
+                      {height > 50 && (
                         <div className="text-[10px] text-gray-300 truncate">
                           {minutesToTime(meeting.start_time)} - {minutesToTime(meeting.end_time)}
-                        </div>
-                      )}
-                      {height > 60 && (
-                        <div className="text-[10px] text-gray-400 truncate">
-                          {meeting.building} {meeting.room}
                         </div>
                       )}
 
