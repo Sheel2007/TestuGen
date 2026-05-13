@@ -270,6 +270,7 @@ function App() {
             selectedIndex={selectedIndex}
             onSelect={setSelectedIndex}
             onRemove={removeSchedule}
+            semester={semester}
             meta={meta}
           />
 
