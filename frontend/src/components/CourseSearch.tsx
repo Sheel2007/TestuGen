@@ -52,7 +52,7 @@ export function CourseSearch({ selectedCourses, onAdd, onRemove, professorPrefs,
   // Fetch professors when a course is added
   useEffect(() => {
     for (const course of selectedCourses) {
-      if (!professorLists[course.course_id]) {
+      if (!(course.course_id in professorLists)) {
         fetchProfessors(course.course_id, semester).then(profs => {
           setProfessorLists(prev => ({ ...prev, [course.course_id]: profs }));
         });
@@ -129,7 +129,9 @@ export function CourseSearch({ selectedCourses, onAdd, onRemove, professorPrefs,
                   </button>
                 </div>
                 <div className="text-xs text-gray-400 mb-1.5">{course.name}</div>
-                {profs.length > 0 ? (
+                {!(course.course_id in professorLists) ? (
+                  <div className="text-xs text-gray-600">Loading professors...</div>
+                ) : profs.length > 0 ? (
                   <select
                     value={selectedProf}
                     onChange={e => onProfessorChange(course.course_id, e.target.value)}
@@ -141,7 +143,7 @@ export function CourseSearch({ selectedCourses, onAdd, onRemove, professorPrefs,
                     ))}
                   </select>
                 ) : (
-                  <div className="text-xs text-gray-600">Loading professors...</div>
+                  <div className="text-xs text-gray-500">Instructor: TBA</div>
                 )}
               </div>
             );
