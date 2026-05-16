@@ -6,26 +6,37 @@ import { WeeklyCalendar } from './components/WeeklyCalendar';
 import { ScheduleResults } from './components/ScheduleResults';
 import { AboutModal } from './components/AboutModal';
 import { useOptimizer } from './hooks/useOptimizer';
+import { useLocalStorage } from './hooks/useLocalStorage';
 import { DAY_ORDER } from './utils/timeUtils';
 
 function App() {
-  const [selectedCourses, setSelectedCourses] = useState<CourseResult[]>([]);
-  const [professorPrefs, setProfessorPrefs] = useState<Record<string, string>>({});
-  const [semester, setSemester] = useState('202608');
-  const [noEarlyMorning, setNoEarlyMorning] = useState(true);
-  const [noEvening, setNoEvening] = useState(false);
-  const [lunchBreak, setLunchBreak] = useState(true);
-  const [earlyBefore, setEarlyBefore] = useState(9);
-  const [eveningAfter, setEveningAfter] = useState(17);
-  const [lunchStartHour, setLunchStartHour] = useState(11);
-  const [lunchEndHour, setLunchEndHour] = useState(13);
-  const [minGap, setMinGap] = useState<number | null>(null);
-  const [maxGap, setMaxGap] = useState<number | null>(null);
-  const [profWeight, setProfWeight] = useState(0.4);
-  const [gapWeight, setGapWeight] = useState(0.3);
-  const [timeWeight, setTimeWeight] = useState(0.3);
-  const [blockedSlots, setBlockedSlots] = useState<Set<string>>(new Set());
+  const [selectedCourses, setSelectedCourses] = useLocalStorage<CourseResult[]>('ts:courses', []);
+  const [professorPrefs, setProfessorPrefs] = useLocalStorage<Record<string, string>>('ts:profPrefs', {});
+  const [semester, setSemester] = useLocalStorage('ts:semester', '202608');
+  const [noEarlyMorning, setNoEarlyMorning] = useLocalStorage('ts:noEarly', true);
+  const [noEvening, setNoEvening] = useLocalStorage('ts:noEvening', false);
+  const [lunchBreak, setLunchBreak] = useLocalStorage('ts:lunch', true);
+  const [earlyBefore, setEarlyBefore] = useLocalStorage('ts:earlyBefore', 9);
+  const [eveningAfter, setEveningAfter] = useLocalStorage('ts:eveningAfter', 17);
+  const [lunchStartHour, setLunchStartHour] = useLocalStorage('ts:lunchStart', 11);
+  const [lunchEndHour, setLunchEndHour] = useLocalStorage('ts:lunchEnd', 13);
+  const [minGap, setMinGap] = useLocalStorage<number | null>('ts:minGap', null);
+  const [maxGap, setMaxGap] = useLocalStorage<number | null>('ts:maxGap', null);
+  const [profWeight, setProfWeight] = useLocalStorage('ts:profWeight', 0.4);
+  const [gapWeight, setGapWeight] = useLocalStorage('ts:gapWeight', 0.3);
+  const [timeWeight, setTimeWeight] = useLocalStorage('ts:timeWeight', 0.3);
+  const [blockedSlotsArray, setBlockedSlotsArray] = useLocalStorage<string[]>('ts:blocked', []);
   const [aboutOpen, setAboutOpen] = useState(false);
+
+  // Convert stored array to Set for internal use
+  const blockedSlots = useMemo(() => new Set(blockedSlotsArray), [blockedSlotsArray]);
+  const setBlockedSlots = useCallback((updater: Set<string> | ((prev: Set<string>) => Set<string>)) => {
+    setBlockedSlotsArray(prev => {
+      const prevSet = new Set(prev);
+      const next = updater instanceof Function ? updater(prevSet) : updater;
+      return [...next];
+    });
+  }, [setBlockedSlotsArray]);
 
   const autoBlockedSlots = useMemo(() => {
     const auto = new Set<string>();

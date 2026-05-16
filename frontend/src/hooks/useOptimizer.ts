@@ -1,14 +1,24 @@
 import { useState } from 'react';
 import type { Schedule, OptimizationRequest } from '../types';
 import { optimize } from '../api/client';
+import { useLocalStorage } from './useLocalStorage';
 
 export function useOptimizer() {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [scheduleLabels, setScheduleLabels] = useState<number[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>(() => {
+    try {
+      const saved = localStorage.getItem('ts:schedules');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.length > 0 ? 'done' : 'idle';
+      }
+    } catch { /* ignore */ }
+    return 'idle';
+  });
+  const [schedules, setSchedules] = useLocalStorage<Schedule[]>('ts:schedules', []);
+  const [scheduleLabels, setScheduleLabels] = useLocalStorage<number[]>('ts:scheduleLabels', []);
+  const [selectedIndex, setSelectedIndex] = useLocalStorage('ts:selectedIdx', 0);
   const [error, setError] = useState('');
-  const [meta, setMeta] = useState<{ numVariables: number; solver: string } | null>(null);
+  const [meta, setMeta] = useLocalStorage<{ numVariables: number; solver: string } | null>('ts:meta', null);
   const [warnings, setWarnings] = useState<string[]>([]);
 
   async function runOptimize(request: OptimizationRequest) {
