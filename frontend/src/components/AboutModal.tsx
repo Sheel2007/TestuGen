@@ -13,7 +13,7 @@ export function AboutModal({ open, onClose }: Props) {
 
       {/* Modal */}
       <div
-        className="relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto"
+        className="relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-w-lg w-full mx-3 sm:mx-4 max-h-[85vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         {/* Close button */}

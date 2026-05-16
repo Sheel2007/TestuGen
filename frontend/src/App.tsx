@@ -156,18 +156,18 @@ function App() {
   }, 0);
 
   return (
-    <div className="h-screen bg-gray-950 text-white flex flex-col overflow-hidden">
+    <div className="min-h-screen md:h-screen bg-gray-950 text-white flex flex-col md:overflow-hidden overflow-auto">
       {/* Header */}
       <header className="flex-shrink-0 border-b border-gray-800 bg-gray-900/80 backdrop-blur z-30">
-        <div className="px-5 py-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <div className="w-7 h-7 bg-red-600 rounded-md flex items-center justify-center font-bold text-xs">T</div>
-            <h1 className="text-base font-bold">TerpScheduler</h1>
+            <h1 className="text-sm sm:text-base font-bold">TerpScheduler</h1>
           </div>
-          <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-3 sm:gap-6 text-sm overflow-x-auto">
             <button
               onClick={() => setAboutOpen(true)}
-              className="text-gray-400 hover:text-white transition-colors text-base bg-transparent border-none cursor-pointer"
+              className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base bg-transparent border-none cursor-pointer flex-shrink-0"
             >
               About
             </button>
@@ -175,15 +175,15 @@ function App() {
               href="https://github.com/Sheel2007/TestuGen"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors text-base"
+              className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base flex-shrink-0 hidden sm:inline"
             >
               GitHub
             </a>
-            <span className="text-gray-400 text-base">Credits: <span className="font-semibold text-white">{totalCredits}</span></span>
+            <span className="text-gray-400 text-sm sm:text-base flex-shrink-0">Credits: <span className="font-semibold text-white">{totalCredits}</span></span>
             <select
               value={semester}
               onChange={e => setSemester(e.target.value)}
-              className="px-3 py-1 bg-gray-800 border border-gray-700 rounded-md text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500"
+              className="px-2 sm:px-3 py-1 bg-gray-800 border border-gray-700 rounded-md text-xs sm:text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500 flex-shrink-0"
             >
               <option value="202608">Fall 2026</option>
               <option value="202601">Spring 2026</option>
@@ -195,10 +195,10 @@ function App() {
       </header>
 
       {/* Main content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left sidebar */}
-        <aside className="w-[320px] flex-shrink-0 border-r border-gray-800 bg-gray-900/40 overflow-y-auto">
-          <div className="p-4 space-y-4">
+      <div className="flex-1 flex flex-col md:flex-row md:overflow-hidden">
+        {/* Left sidebar — full width on mobile, fixed width on desktop */}
+        <aside className="w-full md:w-[320px] flex-shrink-0 border-b md:border-b-0 md:border-r border-gray-800 bg-gray-900/40 md:overflow-y-auto">
+          <div className="p-3 sm:p-4 space-y-4">
             {/* Course search */}
             <CourseSearch
               selectedCourses={selectedCourses}
@@ -262,10 +262,10 @@ function App() {
         </aside>
 
         {/* Right: schedule tabs + calendar */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col md:overflow-hidden">
           {/* Warnings & errors — top of main area so users always see them */}
           {(error || warnings.length > 0) && (
-            <div className="flex-shrink-0 px-4 pt-2 space-y-1.5">
+            <div className="flex-shrink-0 px-3 sm:px-4 pt-2 space-y-1.5">
               {error && (
                 <div className="bg-red-900/30 border border-red-700 rounded-lg px-3 py-2 text-xs text-red-300">
                   {error}
@@ -291,7 +291,7 @@ function App() {
           />
 
           {/* Calendar */}
-          <div className="flex-1 overflow-auto p-4">
+          <div className="flex-1 overflow-auto p-2 sm:p-4">
             <WeeklyCalendar schedule={schedules[selectedIndex] ?? null} />
           </div>
         </div>
