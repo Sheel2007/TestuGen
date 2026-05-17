@@ -218,6 +218,77 @@ async def get_course_sections(course_id: str, semester: str = "202508"):
     return results
 
 
+async def _fetch_sections_fast(course_id: str, semester: str = "202508") -> list[dict]:
+    """Lightweight section fetch for optimizer — skip individual professor lookups.
+    Only fetches umd.io sections + Jupiterp seats. Uses default professor rating.
+    Cuts ~30 PlanetTerp API calls down to 1 (course GPA only).
+    """
+    try:
+        raw_sections = await umdio.get_sections(course_id.upper(), semester)
+    except Exception:
+        raw_sections = []
+
+    if not raw_sections:
+        return []
+
+    # Only fetch Jupiterp seats + course GPA (2 API calls vs ~15)
+    gpa_task = planetterp.get_course_avg_gpa(course_id.upper())
+    seats_task = _fetch_jupiterp_seats(course_id.upper())
+    gpa_result, seats_result = await asyncio.gather(gpa_task, seats_task, return_exceptions=True)
+
+    avg_gpa = gpa_result if isinstance(gpa_result, float) else config.DEFAULT_GPA
+    jupiterp_seats = seats_result if isinstance(seats_result, dict) else {}
+
+    # Check professor cache — use cached ratings if available, else default
+    results = []
+    for sec in raw_sections:
+        instructors = sec.get("instructors", [])
+        # Try cache first — no API call if miss
+        rating = config.DEFAULT_PROFESSOR_RATING
+        if instructors:
+            cached_prof = cache.get(f"prof:{instructors[0]}")
+            if cached_prof and cached_prof.get("average_rating"):
+                rating = float(cached_prof["average_rating"])
+
+        meetings = []
+        for m in sec.get("meetings", []):
+            building = m.get("building", "")
+            coords = get_building_coords(building)
+            meetings.append({
+                "days": m.get("days", ""),
+                "start_time": _parse_time_str(m.get("start_time", "")),
+                "end_time": _parse_time_str(m.get("end_time", "")),
+                "building": building,
+                "room": m.get("room", ""),
+                "lat": coords[0] if coords else None,
+                "lng": coords[1] if coords else None,
+            })
+
+        section_id = sec.get("section_id", "")
+        sec_code = section_id.split("-")[-1] if "-" in section_id else section_id
+        jp_seats = jupiterp_seats.get(sec_code, {})
+
+        if jp_seats:
+            open_seats = jp_seats["open_seats"]
+            total_seats = jp_seats["total_seats"]
+        else:
+            open_seats = int(sec.get("open_seats", 0) or 0)
+            total_seats = int(sec.get("seats", 0) or 0)
+
+        results.append({
+            "section_id": section_id,
+            "course_id": course_id.upper(),
+            "instructors": instructors,
+            "meetings": meetings,
+            "professor_rating": rating,
+            "avg_gpa": avg_gpa,
+            "total_seats": total_seats,
+            "open_seats": open_seats,
+        })
+
+    return results
+
+
 @router.get("/buildings")
 async def get_buildings():
     return await umdio.get_all_buildings()
@@ -247,7 +318,7 @@ async def optimize(request: OptimizationRequest):
     async def _fetch_one(cid: str):
         t0 = time.monotonic()
         try:
-            result = await get_course_sections(cid, request.semester)
+            result = await _fetch_sections_fast(cid, request.semester)
             logger.info(f"⏱ fetch {cid}: {time.monotonic() - t0:.1f}s, {len(result)} sections")
             return cid, result
         except Exception as e:
@@ -382,6 +453,36 @@ async def optimize(request: OptimizationRequest):
     # Sort by total_score (higher = better fit for user preferences)
     schedules.sort(key=lambda s: -s.total_score)
     schedules = schedules[:request.num_results]
+
+    # Enrich winning sections with real professor ratings (only ~5-15 lookups vs ~50)
+    t_enrich_start = time.monotonic()
+    winning_profs = set()
+    for sched in schedules:
+        for s in sched.sections:
+            if s.instructors:
+                winning_profs.add(s.instructors[0])
+
+    if winning_profs:
+        enrich_tasks = {name: planetterp.get_professor_rating(name) for name in winning_profs}
+        enrich_results = await asyncio.gather(*enrich_tasks.values(), return_exceptions=True)
+        prof_rating_map = {}
+        for name, result in zip(enrich_tasks.keys(), enrich_results):
+            prof_rating_map[name] = result if isinstance(result, float) else config.DEFAULT_PROFESSOR_RATING
+
+        # Update sections with real ratings
+        for sched in schedules:
+            for s in sched.sections:
+                if s.instructors and s.instructors[0] in prof_rating_map:
+                    s.professor_rating = prof_rating_map[s.instructors[0]]
+
+        # Re-score with real ratings
+        for sched in schedules:
+            scores = score_schedule(sched.sections, prefs, weights, request.professor_prefs)
+            sched.professor_score = scores["professor_score"]
+            sched.total_score = scores["total_score"]
+            sched.avg_professor_rating = scores["avg_professor_rating"]
+
+    logger.info(f"⏱ ENRICH: {time.monotonic() - t_enrich_start:.1f}s for {len(winning_profs)} professors")
 
     schedule_outputs = []
     for sched in schedules:
