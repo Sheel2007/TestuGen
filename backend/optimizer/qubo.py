@@ -75,6 +75,44 @@ def _compute_intra_section_gaps(section: Section) -> list[int]:
     return gaps
 
 
+def _parse_days(days: str) -> list[str]:
+    """Parse day string like 'MWF' or 'TuTh' into list of day codes."""
+    result = []
+    i = 0
+    while i < len(days):
+        if i + 1 < len(days) and days[i] == 'T' and days[i + 1] == 'u':
+            result.append('Tu')
+            i += 2
+        elif i + 1 < len(days) and days[i] == 'T' and days[i + 1] == 'h':
+            result.append('Th')
+            i += 2
+        else:
+            result.append(days[i])
+            i += 1
+    return result
+
+
+def _compute_consecutive_gaps(sections: list[Section]) -> list[int]:
+    """Compute gaps only between actually consecutive meetings on each day."""
+    # Collect all meetings grouped by day
+    day_meetings: dict[str, list[tuple[int, int]]] = defaultdict(list)
+    for s in sections:
+        for m in s.meetings:
+            for day in _parse_days(m.days):
+                day_meetings[day].append((m.start_time, m.end_time))
+
+    gaps = []
+    for day, meetings in day_meetings.items():
+        # Sort by start time
+        meetings.sort()
+        for i in range(len(meetings) - 1):
+            end_current = meetings[i][1]
+            start_next = meetings[i + 1][0]
+            if start_next > end_current:
+                gaps.append(start_next - end_current)
+    return gaps
+
+
 def score_schedule(
     sections: list[Section],
     preferences: TimePreference,
@@ -113,13 +151,9 @@ def score_schedule(
 
     prof_score = rating_component + pref_component
 
-    # Gap score: how well gaps between classes fit min/max preference
-    # Include both inter-section gaps AND intra-section gaps (lecture + discussion)
-    all_gaps = []
-    for s in sections:
-        all_gaps.extend(_compute_intra_section_gaps(s))
-    for a, b in itertools.combinations(sections, 2):
-        all_gaps.extend(_compute_pairwise_gaps(a, b))
+    # Gap score: how well gaps between CONSECUTIVE classes fit min/max preference
+    # Group all meetings by day, sort by start time, measure only adjacent gaps
+    all_gaps = _compute_consecutive_gaps(sections)
 
     if all_gaps and (preferences.min_gap is not None or preferences.max_gap is not None):
         violations = 0
