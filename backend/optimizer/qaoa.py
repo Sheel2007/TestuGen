@@ -95,7 +95,7 @@ def _simulate_qaoa_numpy(
     p = config.QAOA_DEPTH
     num_states = 2 ** n
 
-    if n > 18:
+    if n > 14:
         return _sample_qaoa(Q, n, sections, variable_map, course_ids, num_results, coeffs, offset)
 
     cost_diag = np.zeros(num_states)
@@ -246,32 +246,44 @@ def _sample_qaoa(
     coeffs: dict[tuple[int, ...], float],
     offset: float,
 ) -> list[ScheduleResult]:
-    """For large n (>20), use random sampling with QAOA-inspired scoring."""
+    """For large n, use QUBO-weighted sampling — bias toward lower-energy sections."""
     rng = np.random.RandomState(42)
-    candidates: list[tuple[float, list[int]]] = []
 
     course_sections: dict[str, list[int]] = defaultdict(list)
     for i, s in enumerate(sections):
         course_sections[s.course_id].append(i)
 
-    for _ in range(config.QAOA_SHOTS):
+    # Compute softmax weights per course from diagonal QUBO values (lower = better)
+    course_weights: dict[str, np.ndarray] = {}
+    for cid, indices in course_sections.items():
+        diag_vals = np.array([Q[i, i] for i in indices])
+        # Negate because lower QUBO = better, then softmax
+        shifted = -diag_vals - np.max(-diag_vals)  # numerical stability
+        weights = np.exp(shifted)
+        total = weights.sum()
+        course_weights[cid] = weights / total if total > 0 else np.ones(len(indices)) / len(indices)
+
+    candidates: list[tuple[float, list[int]]] = []
+    num_samples = min(config.QAOA_SHOTS, 1000)  # cap samples for speed
+
+    for _ in range(num_samples):
         bits = [0] * n
         for cid in course_ids:
             indices = course_sections[cid]
             if indices:
-                chosen = rng.choice(indices)
+                chosen = rng.choice(indices, p=course_weights[cid])
                 bits[chosen] = 1
 
         with np.errstate(all='ignore'):
             energy = float(np.array(bits, dtype=np.float64) @ Q @ np.array(bits, dtype=np.float64))
         if not np.isfinite(energy):
-            energy = 1e12  # treat as very bad
+            continue
         candidates.append((energy, bits))
 
     candidates.sort(key=lambda x: x[0])
 
     schedules = []
-    seen = set()
+    seen: set[str] = set()
 
     for energy, bits in candidates:
         if len(schedules) >= num_results:

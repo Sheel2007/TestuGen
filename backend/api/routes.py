@@ -327,9 +327,9 @@ async def optimize(request: OptimizationRequest):
         qaoa_results = solve_qaoa(Q, sections, variable_map, request.course_ids, request.num_results)
         schedules.extend(qaoa_results)
 
-    # Skip classical for large inputs — QAOA handles these well enough
-    # Threshold: >5 courses or >30 total sections
-    skip_classical = num_courses > 5 or N > 30
+    # Skip classical for large inputs — QAOA sampling handles these fast
+    # Threshold: >4 courses or >20 total sections
+    skip_classical = num_courses > 4 or N > 20
     if request.solver in ("classical", "both") and not skip_classical:
         classical_results = brute_force_solve(Q, sections, variable_map, request.course_ids, request.num_results)
         schedules.extend(classical_results)
