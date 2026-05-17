@@ -39,6 +39,33 @@ export function AboutModal({ open, onClose }: Props) {
             alongside a classical solver.
           </p>
 
+          {/* How to Use */}
+          <div>
+            <h3 className="text-sm font-semibold text-white mb-2">How to Use</h3>
+            <ol className="text-gray-400 text-sm space-y-2 list-none">
+              <li className="flex gap-2.5 items-start">
+                <span className="w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                <span><span className="text-gray-200 font-medium">Search for courses</span> — type a course name or ID (e.g. CMSC216, MATH241) in the search bar and click to add them</span>
+              </li>
+              <li className="flex gap-2.5 items-start">
+                <span className="w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                <span><span className="text-gray-200 font-medium">Set preferences</span> — choose preferred professors from the dropdown, block out times on the grid, and adjust time filters like lunch break or early morning</span>
+              </li>
+              <li className="flex gap-2.5 items-start">
+                <span className="w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                <span><span className="text-gray-200 font-medium">Click Optimize</span> — the app runs two solvers to find the best schedules that fit your preferences and avoid time conflicts</span>
+              </li>
+              <li className="flex gap-2.5 items-start">
+                <span className="w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
+                <span><span className="text-gray-200 font-medium">Compare results</span> — click through the schedule tabs to compare options. Each one shows professor ratings, time scores, and gap scores</span>
+              </li>
+              <li className="flex gap-2.5 items-start">
+                <span className="w-5 h-5 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">5</span>
+                <span><span className="text-gray-200 font-medium">Export</span> — download your favorite schedule as a .ics file to import into Google Calendar, Apple Calendar, or Outlook</span>
+              </li>
+            </ol>
+          </div>
+
           {/* Inspiration */}
           <div>
             <h3 className="text-sm font-semibold text-white mb-1.5">Inspiration</h3>
