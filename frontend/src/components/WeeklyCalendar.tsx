@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { Schedule } from '../types';
 import { minutesToTime, parseDays, DAY_ORDER, COURSE_COLORS } from '../utils/timeUtils';
 
@@ -126,55 +126,90 @@ export function WeeklyCalendar({ schedule, loading = false, courseCount = 4 }: P
     [courseCount]
   );
 
+  // Elapsed timer for loading messages
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (!loading) { setElapsed(0); return; }
+    const start = Date.now();
+    const interval = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => clearInterval(interval);
+  }, [loading]);
+
   // Skeleton loading state
   if (loading) {
-    return (
-      <CalendarGrid hourHeight={hourHeight} timeColWidth={timeColWidth}>
-        {(day) => (
-          <>
-            {skeletonBlocks
-              .filter(b => b.day === day)
-              .map((block, i) => {
-                const top = ((block.start - START_HOUR * 60) / 60) * hourHeight;
-                const height = (block.duration / 60) * hourHeight;
+    const loadingMessage =
+      elapsed < 5  ? 'Fetching course sections...' :
+      elapsed < 15 ? 'Gathering professor ratings...' :
+      elapsed < 30 ? 'Running quantum optimization...' :
+      elapsed < 60 ? 'This can take a minute — finding the best schedules...' :
+                      'Almost there — hang tight, optimizing across all sections...';
 
-                return (
-                  <div
-                    key={`skel-${day}-${i}`}
-                    className="absolute left-0.5 right-0.5 rounded overflow-hidden"
-                    style={{
-                      top: `${top}px`,
-                      height: `${Math.max(height, 20)}px`,
-                    }}
-                  >
-                    {/* Animated skeleton block */}
-                    <div
-                      className="w-full h-full rounded animate-pulse"
-                      style={{
-                        backgroundColor: COURSE_COLORS[block.colorIdx % COURSE_COLORS.length] + '15',
-                        borderLeft: `3px solid ${COURSE_COLORS[block.colorIdx % COURSE_COLORS.length]}30`,
-                      }}
-                    >
-                      {/* Fake text lines */}
-                      <div className="p-1 sm:px-1.5 sm:py-1 space-y-1">
+    return (
+      <div className="h-full flex flex-col">
+        {/* Loading status bar */}
+        <div className="flex-shrink-0 px-3 sm:px-4 py-2.5 flex items-center gap-3">
+          <div className="relative w-5 h-5 flex-shrink-0">
+            <svg className="animate-spin w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-gray-200 font-medium truncate">{loadingMessage}</p>
+            <p className="text-[11px] text-gray-500 mt-0.5">
+              {elapsed < 60 ? `${elapsed}s` : `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`} elapsed
+            </p>
+          </div>
+        </div>
+
+        {/* Skeleton calendar */}
+        <div className="flex-1 overflow-auto">
+          <CalendarGrid hourHeight={hourHeight} timeColWidth={timeColWidth}>
+            {(day) => (
+              <>
+                {skeletonBlocks
+                  .filter(b => b.day === day)
+                  .map((block, i) => {
+                    const top = ((block.start - START_HOUR * 60) / 60) * hourHeight;
+                    const height = (block.duration / 60) * hourHeight;
+
+                    return (
+                      <div
+                        key={`skel-${day}-${i}`}
+                        className="absolute left-0.5 right-0.5 rounded overflow-hidden"
+                        style={{
+                          top: `${top}px`,
+                          height: `${Math.max(height, 20)}px`,
+                        }}
+                      >
                         <div
-                          className="h-2.5 sm:h-3 rounded-sm w-3/4"
-                          style={{ backgroundColor: COURSE_COLORS[block.colorIdx % COURSE_COLORS.length] + '20' }}
-                        />
-                        {height > 30 && (
-                          <div
-                            className="h-2 rounded-sm w-1/2"
-                            style={{ backgroundColor: COURSE_COLORS[block.colorIdx % COURSE_COLORS.length] + '12' }}
-                          />
-                        )}
+                          className="w-full h-full rounded animate-pulse"
+                          style={{
+                            backgroundColor: COURSE_COLORS[block.colorIdx % COURSE_COLORS.length] + '15',
+                            borderLeft: `3px solid ${COURSE_COLORS[block.colorIdx % COURSE_COLORS.length]}30`,
+                          }}
+                        >
+                          <div className="p-1 sm:px-1.5 sm:py-1 space-y-1">
+                            <div
+                              className="h-2.5 sm:h-3 rounded-sm w-3/4"
+                              style={{ backgroundColor: COURSE_COLORS[block.colorIdx % COURSE_COLORS.length] + '20' }}
+                            />
+                            {height > 30 && (
+                              <div
+                                className="h-2 rounded-sm w-1/2"
+                                style={{ backgroundColor: COURSE_COLORS[block.colorIdx % COURSE_COLORS.length] + '12' }}
+                              />
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
-          </>
-        )}
-      </CalendarGrid>
+                    );
+                  })}
+              </>
+            )}
+          </CalendarGrid>
+        </div>
+      </div>
     );
   }
 
