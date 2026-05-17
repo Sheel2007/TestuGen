@@ -320,14 +320,21 @@ async def optimize(request: OptimizationRequest):
 
     solver_used = request.solver
     schedules = []
+    N = len(sections)
+    num_courses = len(request.course_ids)
 
     if request.solver in ("qaoa", "both"):
         qaoa_results = solve_qaoa(Q, sections, variable_map, request.course_ids, request.num_results)
         schedules.extend(qaoa_results)
 
-    if request.solver in ("classical", "both"):
+    # Skip classical for large inputs — QAOA handles these well enough
+    # Threshold: >5 courses or >30 total sections
+    skip_classical = num_courses > 5 or N > 30
+    if request.solver in ("classical", "both") and not skip_classical:
         classical_results = brute_force_solve(Q, sections, variable_map, request.course_ids, request.num_results)
         schedules.extend(classical_results)
+    elif skip_classical:
+        logger.info(f"Skipping classical solver: {num_courses} courses, {N} sections")
 
     # Re-score ALL schedules uniformly using user preferences and weights
     for sched in schedules:
