@@ -27,13 +27,13 @@ export function AboutModal({ open, onClose }: Props) {
         <div className="p-6 space-y-5">
           {/* Title */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-red-600 rounded-lg flex items-center justify-center font-bold text-sm">T</div>
-            <h2 className="text-xl font-bold">About TerpScheduler</h2>
+            <div className="w-9 h-9 bg-red-600 rounded-lg flex items-center justify-center font-bold text-sm">R</div>
+            <h2 className="text-xl font-bold">About Registerp</h2>
           </div>
 
           {/* Description */}
           <p className="text-gray-300 text-sm leading-relaxed">
-            TerpScheduler helps University of Maryland students build the best possible class schedule.
+            Registerp helps University of Maryland students build the best possible class schedule.
             You pick your courses and preferences, and it finds schedules that balance professor ratings,
             time gaps, and your availability using a quantum-inspired optimization algorithm (QAOA)
             alongside a classical solver.
@@ -70,7 +70,7 @@ export function AboutModal({ open, onClose }: Props) {
           <div>
             <h3 className="text-sm font-semibold text-white mb-1.5">Inspiration</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
-              TerpScheduler was heavily inspired by{' '}
+              Registerp was heavily inspired by{' '}
               <a href="https://jupiterp.com" target="_blank" rel="noopener noreferrer" className="text-red-400 hover:text-red-300 underline">Jupiterp</a>
               {' '}and also draws some inspiration from{' '}
               <a href="https://planetterp.com" target="_blank" rel="noopener noreferrer" className="text-red-400 hover:text-red-300 underline">PlanetTerp</a>.
@@ -100,7 +100,7 @@ export function AboutModal({ open, onClose }: Props) {
           <div>
             <h3 className="text-sm font-semibold text-white mb-1.5">Open Source</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
-              TerpScheduler is completely open source. Check out the code on{' '}
+              Registerp is completely open source. Check out the code on{' '}
               <a href="https://github.com/Sheel2007/TestuGen" target="_blank" rel="noopener noreferrer" className="text-red-400 hover:text-red-300 underline">GitHub</a>.
             </p>
           </div>
@@ -144,7 +144,7 @@ export function AboutModal({ open, onClose }: Props) {
 
           {/* Disclaimer */}
           <p className="text-gray-600 text-[11px] text-center">
-            TerpScheduler is not affiliated with the University of Maryland.
+            Registerp is not affiliated with the University of Maryland.
           </p>
         </div>
       </div>

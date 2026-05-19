@@ -50,7 +50,7 @@ function firstOccurrence(startDate: string, dayCode: string): string {
 }
 
 function uid(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}@terpscheduler`;
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}@registerp`;
 }
 
 export function generateICS(schedule: Schedule, semester: string, label: number): string {
@@ -58,10 +58,10 @@ export function generateICS(schedule: Schedule, semester: string, label: number)
   const lines: string[] = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//TerpScheduler//Schedule Export//EN',
+    'PRODID:-//Registerp//Schedule Export//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
-    `X-WR-CALNAME:TerpScheduler Schedule ${label}`,
+    `X-WR-CALNAME:Registerp Schedule ${label}`,
     'X-WR-TIMEZONE:America/New_York',
     // Timezone definition for proper handling
     'BEGIN:VTIMEZONE',
@@ -126,7 +126,7 @@ export function downloadICS(schedule: Schedule, semester: string, label: number)
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `terpscheduler-schedule-${label}.ics`;
+  a.download = `registerp-schedule-${label}.ics`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

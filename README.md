@@ -1,12 +1,12 @@
-# TerpScheduler
+# Registerp
 
-TerpScheduler helps University of Maryland students build the best possible class schedule. You pick your courses and preferences, and it finds schedules that balance professor ratings, time gaps, and your availability.
+Registerp helps University of Maryland students build the best possible class schedule. You pick your courses and preferences, and it finds schedules that balance professor ratings, time gaps, and your availability.
 
 It uses a quantum-inspired optimization algorithm (QAOA) alongside a classical solver to explore many possible combinations and return the top results.
 
-TerpScheduler was heavily inspired by [Jupiterp](https://jupiterp.com) and also draws some inspiration from [PlanetTerp](https://planetterp.com).
+Registerp was heavily inspired by [Jupiterp](https://jupiterp.com) and also draws some inspiration from [PlanetTerp](https://planetterp.com).
 
-> **Note:** TerpScheduler is not affiliated with the University of Maryland.
+> **Note:** Registerp is not affiliated with the University of Maryland.
 
 ## Features
 
