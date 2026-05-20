@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://registerp.com/sitemap.xml
+Sitemap: https://orbitterp.com/sitemap.xml

@@ -181,8 +181,8 @@ function App() {
       <header className="flex-shrink-0 border-b border-gray-800 bg-gray-900/80 backdrop-blur z-30">
         <div className="px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <div className="w-7 h-7 bg-red-600 rounded-md flex items-center justify-center font-bold text-xs">R</div>
-            <h1 className="text-sm sm:text-base font-bold">Registerp</h1>
+            <img src="/favicon.svg" alt="OrbitTerp" className="w-7 h-7 flex-shrink-0" />
+            <h1 className="text-sm sm:text-base font-bold">OrbitTerp</h1>
           </div>
           <div className="flex items-center gap-3 sm:gap-6 text-sm overflow-x-auto">
             <button

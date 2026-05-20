@@ -1,4 +1,50 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" fill="#DC2626"/>
-  <text x="16" y="24" font-family="Arial,sans-serif" font-weight="bold" font-size="22" fill="white" text-anchor="middle">T</text>
+  <defs>
+    <!-- Planet gradient - earthy blue/green -->
+    <radialGradient id="planet" cx="0.4" cy="0.35" r="0.6">
+      <stop offset="0%" stop-color="#4FC3F7"/>
+      <stop offset="45%" stop-color="#2196F3"/>
+      <stop offset="80%" stop-color="#1565C0"/>
+      <stop offset="100%" stop-color="#0D47A1"/>
+    </radialGradient>
+    <!-- Planet shadow -->
+    <radialGradient id="shadow" cx="0.7" cy="0.6" r="0.5">
+      <stop offset="0%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.3)"/>
+    </radialGradient>
+    <!-- Moon gradient -->
+    <radialGradient id="moon" cx="0.35" cy="0.3" r="0.6">
+      <stop offset="0%" stop-color="#FFE082"/>
+      <stop offset="60%" stop-color="#FFA726"/>
+      <stop offset="100%" stop-color="#E65100"/>
+    </radialGradient>
+    <!-- Orbit ring gradient -->
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#CE93D8"/>
+      <stop offset="50%" stop-color="#AB47BC"/>
+      <stop offset="100%" stop-color="#7B1FA2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Orbit ring behind planet -->
+  <ellipse cx="16" cy="16" rx="14.5" ry="5.5" fill="none" stroke="url(#ring)" stroke-width="1.6" opacity="0.5" transform="rotate(-25 16 16)"/>
+
+  <!-- Planet body -->
+  <circle cx="16" cy="16" r="7.5" fill="url(#planet)"/>
+  <!-- Planet surface details -->
+  <ellipse cx="13" cy="14" rx="3" ry="2" fill="#81D4FA" opacity="0.3" transform="rotate(-15 13 14)"/>
+  <ellipse cx="19" cy="18" rx="2.5" ry="1.5" fill="#4CAF50" opacity="0.25" transform="rotate(10 19 18)"/>
+  <ellipse cx="14" cy="19" rx="2" ry="1" fill="#4CAF50" opacity="0.2" transform="rotate(-5 14 19)"/>
+  <!-- Shadow on planet -->
+  <circle cx="16" cy="16" r="7.5" fill="url(#shadow)"/>
+  <!-- Specular highlight -->
+  <ellipse cx="13.5" cy="13" rx="2.5" ry="1.8" fill="white" opacity="0.15" transform="rotate(-30 13.5 13)"/>
+
+  <!-- Orbit ring in front of planet -->
+  <path d="M 16 21.5 A 14.5 5.5 -25 0 0 29.5 13.5" fill="none" stroke="url(#ring)" stroke-width="1.6" opacity="0.8" transform="rotate(-25 16 16)"/>
+
+  <!-- Moon -->
+  <circle cx="28.5" cy="11" r="2.3" fill="url(#moon)"/>
+  <!-- Moon highlight -->
+  <circle cx="27.8" cy="10.3" r="0.8" fill="white" opacity="0.25"/>
 </svg>
